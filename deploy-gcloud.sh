@@ -114,16 +114,30 @@ gcloud builds submit --tag ${IMAGE_NAME}:latest \
 # Step 9: Create secrets for environment variables (interactive)
 echo "🔐 Creating Cloud Secret Manager secrets..."
 
-echo "Please enter required values. Sensitive values will not be echoed."
-read -s -p "Database password for ${POSTGRES_USER}: " DB_PASSWORD; echo
-read -p "Google Client ID: " GOOGLE_CLIENT_ID
-read -s -p "Google Client Secret: " GOOGLE_CLIENT_SECRET; echo
-read -p "Google Sheets API Key: " GOOGLE_SHEETS_API_KEY
-read -p "Google Maps API Key: " GOOGLE_MAPS_API_KEY
-read -p "Google Analytics ID: " GOOGLE_ANALYTICS_ID
-read -p "OAuth Redirect host (e.g. SERVICE_NAME-xxxxx.run.app) [press enter to accept default]: " REDIRECT_HOST
-if [ -z "${REDIRECT_HOST}" ]; then
-  REDIRECT_HOST="${SERVICE_NAME}-xxxxx.run.app"
+echo "Please enter required values if they are not already set as environment variables. Sensitive values will not be echoed."
+if [ -z "${DB_PASSWORD-}" ]; then
+  read -s -p "Database password for ${POSTGRES_USER}: " DB_PASSWORD; echo
+fi
+if [ -z "${GOOGLE_CLIENT_ID-}" ]; then
+  read -p "Google Client ID: " GOOGLE_CLIENT_ID
+fi
+if [ -z "${GOOGLE_CLIENT_SECRET-}" ]; then
+  read -s -p "Google Client Secret: " GOOGLE_CLIENT_SECRET; echo
+fi
+if [ -z "${GOOGLE_SHEETS_API_KEY-}" ]; then
+  read -p "Google Sheets API Key: " GOOGLE_SHEETS_API_KEY
+fi
+if [ -z "${GOOGLE_MAPS_API_KEY-}" ]; then
+  read -p "Google Maps API Key: " GOOGLE_MAPS_API_KEY
+fi
+if [ -z "${GOOGLE_ANALYTICS_ID-}" ]; then
+  read -p "Google Analytics ID: " GOOGLE_ANALYTICS_ID
+fi
+if [ -z "${REDIRECT_HOST-}" ]; then
+  read -p "OAuth Redirect host (e.g. SERVICE_NAME-xxxxx.run.app) [press enter to accept default]: " REDIRECT_HOST
+  if [ -z "${REDIRECT_HOST}" ]; then
+    REDIRECT_HOST="${SERVICE_NAME}-xxxxx.run.app"
+  fi
 fi
 
 cat > /tmp/.env.prod << EOF
