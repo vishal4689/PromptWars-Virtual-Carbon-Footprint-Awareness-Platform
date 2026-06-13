@@ -21,8 +21,8 @@ export class GoogleDocsService {
   private userId: string;
 
   constructor(auth: OAuth2Client, userId: string) {
-    this.docs = google.docs({ version: 'v1', auth });
-    this.drive = google.drive({ version: 'v3', auth });
+    this.docs = google.docs({ version: 'v1', auth: auth as any });
+    this.drive = google.drive({ version: 'v3', auth: auth as any });
     this.userId = userId;
   }
 

@@ -140,7 +140,7 @@ export const securityHeaders = (req: Request, res: Response, next: NextFunction)
   const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000').split(',');
 
   if (allowedOrigins.includes(origin || '')) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Origin', origin || '');
   }
 
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
@@ -170,7 +170,7 @@ export const rateLimit = (maxRequests: number = 100, windowMs: number = 60000) =
     if (recentRequests.length >= maxRequests) {
       res.status(429).json({
         error: 'Too many requests',
-        retryAfter: Math.ceil((recentRequests[0] + windowMs - now) / 1000),
+        retryAfter: Math.ceil(((recentRequests[0] ?? now) + windowMs - now) / 1000),
       });
       return;
     }

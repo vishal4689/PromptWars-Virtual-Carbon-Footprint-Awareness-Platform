@@ -135,7 +135,7 @@ export class CarbonCalculator {
     }
 
     // Class multiplier (RFI - Radiative Forcing Index)
-    const classMultiplier = {
+    const classMultiplier: Record<string, number> = {
       economy: 1.0,
       business: 2.7,
       first: 5.5,

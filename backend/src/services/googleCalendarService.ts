@@ -35,7 +35,7 @@ export class GoogleCalendarService {
   private userId: string;
 
   constructor(auth: OAuth2Client, userId: string) {
-    this.calendar = google.calendar({ version: 'v3', auth });
+    this.calendar = google.calendar({ version: 'v3', auth: auth as any });
     this.userId = userId;
   }
 
@@ -212,7 +212,7 @@ export class GoogleCalendarService {
       });
 
       const events = response.data.items || [];
-      const totalImpact = events.reduce((sum, event) => {
+      const totalImpact = events.reduce((sum: number, event: any) => {
         return sum + (this.estimateEventCarbon(event).estimated || 0);
       }, 0);
 

@@ -92,14 +92,14 @@ describe('CarbonCalculator Unit Tests', () => {
     test('should provide relatable carbon equivalents', () => {
       const equivalents = CarbonCalculator.getEquivalents(10);
       expect(equivalents).toHaveLength(4);
-      expect(equivalents[0].name).toContain('car');
-      expect(equivalents[1].name).toContain('trees');
+      expect(equivalents[0]!.name).toContain('car');
+      expect(equivalents[1]!.name).toContain('trees');
     });
 
     test('should calculate accurate equivalent values', () => {
       const emission = 0.21; // 1 mile
       const equivalents = CarbonCalculator.getEquivalents(emission);
-      expect(equivalents[0].quantity).toBeCloseTo(1, 0);
+      expect(equivalents[0]!.quantity).toBeCloseTo(1, 0);
     });
   });
 

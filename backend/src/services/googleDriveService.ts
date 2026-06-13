@@ -20,7 +20,7 @@ export class GoogleDriveService {
   private userId: string;
 
   constructor(auth: OAuth2Client, userId: string) {
-    this.drive = google.drive({ version: 'v3', auth });
+    this.drive = google.drive({ version: 'v3', auth: auth as any });
     this.userId = userId;
   }
 
@@ -178,7 +178,7 @@ export class GoogleDriveService {
 
       return new Promise((resolve, reject) => {
         let data = '';
-        response.data.on('data', chunk => {
+        response.data.on('data', (chunk: any) => {
           data += chunk;
         });
         response.data.on('end', () => resolve(data));

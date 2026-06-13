@@ -17,10 +17,12 @@ import { google } from 'googleapis';
  */
 export class GoogleSheetsService {
   private sheets: any;
+  private auth: OAuth2Client;
   private userId: string;
 
   constructor(auth: OAuth2Client, userId: string) {
-    this.sheets = google.sheets({ version: 'v4', auth });
+    this.sheets = google.sheets({ version: 'v4', auth: auth as any });
+    this.auth = auth;
     this.userId = userId;
   }
 
@@ -221,10 +223,10 @@ export class GoogleSheetsService {
     role: string = 'reader'
   ): Promise<void> {
     try {
-      const drive = google.drive({ version: 'v3' });
+      const drive = google.drive({ version: 'v3', auth: this.auth as any });
       await drive.permissions.create({
         fileId: spreadsheetId,
-        resource: {
+        requestBody: {
           kind: 'drive#permission',
           type: 'user',
           emailAddress: email,

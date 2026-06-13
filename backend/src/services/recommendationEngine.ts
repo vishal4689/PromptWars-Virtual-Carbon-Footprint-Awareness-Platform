@@ -68,8 +68,8 @@ export class RecommendationEngine {
     recommendations.sort((a, b) => {
       const priorityScore: Record<string, number> = { high: 3, medium: 2, low: 1 };
       return (
-        priorityScore[b.priority] * b.estimatedSavings -
-        priorityScore[a.priority] * a.estimatedSavings
+        (priorityScore[b.priority] ?? 0) * b.estimatedSavings -
+        (priorityScore[a.priority] ?? 0) * a.estimatedSavings
       );
     });
 
@@ -81,7 +81,13 @@ export class RecommendationEngine {
    * @param activities User activities
    * @returns Impact breakdown
    */
-  private static analyzeImpact(activities: any[]): Record<string, number> {
+  private static analyzeImpact(activities: any[]): {
+    transportation: number;
+    energy: number;
+    food: number;
+    shopping: number;
+    home: number;
+  } {
     const impact = {
       transportation: 0,
       energy: 0,
@@ -216,7 +222,7 @@ export class RecommendationEngine {
    */
   static getPersonalizedRecommendation(userId: string, activities: any[]): Recommendation | null {
     const recommendations = this.generateRecommendations(userId, activities);
-    return recommendations.length > 0 ? recommendations[0] : null;
+    return recommendations[0] ?? null;
   }
 
   /**

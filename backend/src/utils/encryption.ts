@@ -28,7 +28,7 @@ export class EncryptionService {
    */
   encrypt(data: string): string {
     try {
-      const cipher = crypto.createCipheriv(this.algorithm, this.key, this.iv);
+      const cipher = crypto.createCipheriv(this.algorithm, this.key, this.iv) as crypto.CipherGCM;
       let encrypted = cipher.update(data, 'utf8', 'hex');
       encrypted += cipher.final('hex');
       const authTag = cipher.getAuthTag();
@@ -45,14 +45,20 @@ export class EncryptionService {
    */
   decrypt(encryptedData: string): string {
     try {
-      const [ivHex, authTagHex, encrypted] = encryptedData.split(':');
+      const parts = encryptedData.split(':');
+      const ivHex = parts[0];
+      const authTagHex = parts[1];
+      const encrypted = parts[2];
+      if (!ivHex || !authTagHex || !encrypted) {
+        throw new Error('Invalid encrypted data format');
+      }
       const iv = Buffer.from(ivHex, 'hex');
       const authTag = Buffer.from(authTagHex, 'hex');
 
-      const decipher = crypto.createDecipheriv(this.algorithm, this.key, iv);
+      const decipher = crypto.createDecipheriv(this.algorithm, this.key, iv) as crypto.DecipherGCM;
       decipher.setAuthTag(authTag);
 
-      let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+      let decrypted: string = decipher.update(encrypted, 'hex', 'utf8');
       decrypted += decipher.final('utf8');
       return decrypted;
     } catch (error) {

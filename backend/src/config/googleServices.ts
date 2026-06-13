@@ -51,7 +51,7 @@ export class GoogleServicesFactory {
   static createCalendarClient(auth: OAuth2Client) {
     return google.calendar({
       version: 'v3',
-      auth,
+      auth: auth as any,
     });
   }
 
@@ -61,7 +61,7 @@ export class GoogleServicesFactory {
   static createSheetsClient(auth: OAuth2Client) {
     return google.sheets({
       version: 'v4',
-      auth,
+      auth: auth as any,
     });
   }
 
@@ -71,17 +71,7 @@ export class GoogleServicesFactory {
   static createDriveClient(auth: OAuth2Client) {
     return google.drive({
       version: 'v3',
-      auth,
-    });
-  }
-
-  /**
-   * Create Google Maps client using API key
-   */
-  static createMapsClient() {
-    return google.maps({
-      version: 'v1',
-      key: process.env.GOOGLE_MAPS_API_KEY,
+      auth: auth as any,
     });
   }
 
@@ -91,7 +81,7 @@ export class GoogleServicesFactory {
   static createDocsClient(auth: OAuth2Client) {
     return google.docs({
       version: 'v1',
-      auth,
+      auth: auth as any,
     });
   }
 
@@ -122,8 +112,8 @@ export class GoogleServicesFactory {
    */
   static createAnalyticsClient(auth: OAuth2Client) {
     return google.analyticsadmin({
-      version: 'v1alpha',
-      auth,
+      version: 'v1beta',
+      auth: auth as any,
     });
   }
 }
