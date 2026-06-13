@@ -1,0 +1,33 @@
+{
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "roots": ["<rootDir>/backend", "<rootDir>/frontend"],
+  "testMatch": ["**/__tests__/**/*.ts?(x)", "**/?(*.)+(spec|test).ts?(x)"],
+  "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json"],
+  "collectCoverageFrom": [
+    "backend/src/**/*.ts",
+    "!backend/src/**/*.d.ts",
+    "!backend/src/config/**",
+    "!backend/src/models/**"
+  ],
+  "coverageThreshold": {
+    "global": {
+      "branches": 90,
+      "functions": 90,
+      "lines": 90,
+      "statements": 90
+    }
+  },
+  "moduleNameMapper": {
+    "^@/(.*)$": "<rootDir>/backend/src/$1",
+    "^@tests/(.*)$": "<rootDir>/backend/tests/$1"
+  },
+  "setupFilesAfterEnv": ["<rootDir>/backend/tests/setup.ts"],
+  "testTimeout": 30000,
+  "verbose": true,
+  "globals": {
+    "ts-jest": {
+      "tsconfig": "backend/tsconfig.json"
+    }
+  }
+}
