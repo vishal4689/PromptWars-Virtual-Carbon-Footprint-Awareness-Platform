@@ -14,17 +14,22 @@ export POSTGRES_INSTANCE="carbon-postgres"
 export POSTGRES_DB="carbon_footprint"
 export POSTGRES_USER="postgres"
 
+# Ensure script runs from its own directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "${SCRIPT_DIR}" || exit 1
+
 echo "🌍 Carbon Footprint Platform - Google Cloud Deployment"
 echo "========================================================"
 
 # Basic checks
 if [ ! -f Dockerfile ]; then
-  echo "ERROR: Dockerfile not found in current directory. Please run this script from the project root containing Dockerfile." >&2
+  echo "ERROR: Dockerfile not found in ${SCRIPT_DIR}. Please clone the repo and run this script from the project root." >&2
+  echo "Example: git clone https://github.com/vishal4689/PromptWars-Virtual-Carbon-Footprint-Awareness-Platform.git" >&2
   exit 1
 fi
 
 if [ ! -f package.json ]; then
-  echo "ERROR: package.json not found in current directory. Please run this script from the project root." >&2
+  echo "ERROR: package.json not found in ${SCRIPT_DIR}. Please clone the repo and run this script from the project root." >&2
   exit 1
 fi
 
