@@ -114,7 +114,7 @@ gcloud builds submit --tag ${IMAGE_NAME}:latest \
 # Step 9: Create secrets for environment variables (interactive)
 echo "🔐 Creating Cloud Secret Manager secrets..."
 
-echo "Reading required values from environment..."
+echo "Validating required environment variables..."
 # Require environment variables to be set (non-interactive)
 : ${DB_PASSWORD:?"Error: DB_PASSWORD is not set. Export DB_PASSWORD before running the script."}
 : ${GOOGLE_CLIENT_ID:?"Error: GOOGLE_CLIENT_ID is not set. Export GOOGLE_CLIENT_ID before running the script."}
@@ -126,50 +126,39 @@ if [ -z "${REDIRECT_HOST-}" ]; then
   REDIRECT_HOST="${SERVICE_NAME}-xxxxx.run.app"
 fi
 
-cat > /tmp/.env.prod << EOF
-NODE_ENV=production
-PORT=3001
-DATABASE_URL=postgresql://${POSTGRES_USER}:${DB_PASSWORD}@cloudsql/${SQL_CONNECTION_NAME}/${POSTGRES_DB}
-JWT_SECRET=$(openssl rand -base64 32)
-ENCRYPTION_KEY=$(openssl rand -base64 32)
-GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-GOOGLE_REDIRECT_URI=https://${REDIRECT_HOST}/api/auth/google/callback
-GOOGLE_SHEETS_API_KEY=${GOOGLE_SHEETS_API_KEY}
-GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
-GOOGLE_BIGQUERY_PROJECT_ID=${PROJECT_ID}
-GOOGLE_CLOUD_BUCKET=${BUCKET_NAME}
-GOOGLE_ANALYTICS_ID=${GOOGLE_ANALYTICS_ID}
-ALLOWED_ORIGINS=https://${REDIRECT_HOST},https://yourdomain.com
-BCRYPT_ROUNDS=10
-SESSION_TIMEOUT=3600000
-LOG_LEVEL=info
-ENABLE_GAMIFICATION=true
-ENABLE_SOCIAL_FEATURES=true
-ENABLE_EXPORT_FEATURES=true
-EOF
+# Generate random secrets if not provided
+JWT_SECRET="${JWT_SECRET:-$(openssl rand -base64 32)}"
+ENCRYPTION_KEY="${ENCRYPTION_KEY:-$(openssl rand -base64 32)}"
+DB_PASSWORD_SECRET="${DB_PASSWORD_SECRET:-${DB_PASSWORD}}"
 
-# Create/Update secrets in Secret Manager
-echo "Creating/updating jwt-secret..."
-echo -n "$(grep '^JWT_SECRET=' /tmp/.env.prod | cut -d'=' -f2-)" | gcloud secrets create jwt-secret --replication-policy="automatic" --data-file=- || gcloud secrets versions add jwt-secret --data-file=-
+# Create/Update all secrets in Secret Manager (automated)
+echo "Creating/updating secrets in Secret Manager..."
 
-echo "Creating/updating encryption-key..."
-echo -n "$(grep '^ENCRYPTION_KEY=' /tmp/.env.prod | cut -d'=' -f2-)" | gcloud secrets create encryption-key --replication-policy="automatic" --data-file=- || gcloud secrets versions add encryption-key --data-file=-
+echo -n "${JWT_SECRET}" | gcloud secrets create jwt-secret --replication-policy="automatic" --data-file=- 2>/dev/null || \
+  echo -n "${JWT_SECRET}" | gcloud secrets versions add jwt-secret --data-file=-
 
-echo "Creating/updating google-client-id..."
-echo -n "${GOOGLE_CLIENT_ID}" | gcloud secrets create google-client-id --replication-policy="automatic" --data-file=- || gcloud secrets versions add google-client-id --data-file=-
+echo -n "${ENCRYPTION_KEY}" | gcloud secrets create encryption-key --replication-policy="automatic" --data-file=- 2>/dev/null || \
+  echo -n "${ENCRYPTION_KEY}" | gcloud secrets versions add encryption-key --data-file=-
 
-echo "Creating/updating google-client-secret..."
-echo -n "${GOOGLE_CLIENT_SECRET}" | gcloud secrets create google-client-secret --replication-policy="automatic" --data-file=- || gcloud secrets versions add google-client-secret --data-file=-
+echo -n "${DB_PASSWORD_SECRET}" | gcloud secrets create db-password --replication-policy="automatic" --data-file=- 2>/dev/null || \
+  echo -n "${DB_PASSWORD_SECRET}" | gcloud secrets versions add db-password --data-file=-
 
-echo "Creating/updating google-sheets-api-key..."
-echo -n "${GOOGLE_SHEETS_API_KEY}" | gcloud secrets create google-sheets-api-key --replication-policy="automatic" --data-file=- || gcloud secrets versions add google-sheets-api-key --data-file=-
+echo -n "${GOOGLE_CLIENT_ID}" | gcloud secrets create google-client-id --replication-policy="automatic" --data-file=- 2>/dev/null || \
+  echo -n "${GOOGLE_CLIENT_ID}" | gcloud secrets versions add google-client-id --data-file=-
 
-echo "Creating/updating google-maps-api-key..."
-echo -n "${GOOGLE_MAPS_API_KEY}" | gcloud secrets create google-maps-api-key --replication-policy="automatic" --data-file=- || gcloud secrets versions add google-maps-api-key --data-file=-
+echo -n "${GOOGLE_CLIENT_SECRET}" | gcloud secrets create google-client-secret --replication-policy="automatic" --data-file=- 2>/dev/null || \
+  echo -n "${GOOGLE_CLIENT_SECRET}" | gcloud secrets versions add google-client-secret --data-file=-
 
-echo "Creating/updating google-analytics-id..."
-echo -n "${GOOGLE_ANALYTICS_ID}" | gcloud secrets create google-analytics-id --replication-policy="automatic" --data-file=- || gcloud secrets versions add google-analytics-id --data-file=-
+echo -n "${GOOGLE_SHEETS_API_KEY}" | gcloud secrets create google-sheets-api-key --replication-policy="automatic" --data-file=- 2>/dev/null || \
+  echo -n "${GOOGLE_SHEETS_API_KEY}" | gcloud secrets versions add google-sheets-api-key --data-file=-
+
+echo -n "${GOOGLE_MAPS_API_KEY}" | gcloud secrets create google-maps-api-key --replication-policy="automatic" --data-file=- 2>/dev/null || \
+  echo -n "${GOOGLE_MAPS_API_KEY}" | gcloud secrets versions add google-maps-api-key --data-file=-
+
+echo -n "${GOOGLE_ANALYTICS_ID}" | gcloud secrets create google-analytics-id --replication-policy="automatic" --data-file=- 2>/dev/null || \
+  echo -n "${GOOGLE_ANALYTICS_ID}" | gcloud secrets versions add google-analytics-id --data-file=-
+
+echo "✅ All secrets stored in Secret Manager"
 
 # Optional: offer to push repo to GitHub
 read -p "Enter GitHub HTTPS repo URL to push code (or leave empty to skip): " GITHUB_REPO
@@ -196,8 +185,8 @@ gcloud run deploy ${SERVICE_NAME} \
   --min-instances=1 \
   --allow-unauthenticated \
   --set-cloudsql-instances=${SQL_CONNECTION_NAME} \
-  --set-env-vars="NODE_ENV=production,PORT=3001,GOOGLE_BIGQUERY_PROJECT_ID=${PROJECT_ID},GOOGLE_CLOUD_BUCKET=${BUCKET_NAME}" \
-  --set-secrets="JWT_SECRET=jwt-secret:latest,ENCRYPTION_KEY=encryption-key:latest" \
+  --set-env-vars="NODE_ENV=production,PORT=3001,GOOGLE_BIGQUERY_PROJECT_ID=${PROJECT_ID},GOOGLE_CLOUD_BUCKET=${BUCKET_NAME},GOOGLE_REDIRECT_URI=https://${REDIRECT_HOST}/api/auth/google/callback,ALLOWED_ORIGINS=https://${REDIRECT_HOST},https://yourdomain.com" \
+  --set-secrets="JWT_SECRET=jwt-secret:latest,ENCRYPTION_KEY=encryption-key:latest,DB_PASSWORD=db-password:latest,GOOGLE_CLIENT_ID=google-client-id:latest,GOOGLE_CLIENT_SECRET=google-client-secret:latest,GOOGLE_SHEETS_API_KEY=google-sheets-api-key:latest,GOOGLE_MAPS_API_KEY=google-maps-api-key:latest,GOOGLE_ANALYTICS_ID=google-analytics-id:latest" \
   --update-on-deploy
 
 # Step 11: Get the service URL
