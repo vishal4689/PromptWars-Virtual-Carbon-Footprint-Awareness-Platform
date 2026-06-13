@@ -114,30 +114,16 @@ gcloud builds submit --tag ${IMAGE_NAME}:latest \
 # Step 9: Create secrets for environment variables (interactive)
 echo "🔐 Creating Cloud Secret Manager secrets..."
 
-echo "Please enter required values if they are not already set as environment variables. Sensitive values will not be echoed."
-if [ -z "${DB_PASSWORD-}" ]; then
-  read -s -p "Database password for ${POSTGRES_USER}: " DB_PASSWORD; echo
-fi
-if [ -z "${GOOGLE_CLIENT_ID-}" ]; then
-  read -p "Google Client ID: " GOOGLE_CLIENT_ID
-fi
-if [ -z "${GOOGLE_CLIENT_SECRET-}" ]; then
-  read -s -p "Google Client Secret: " GOOGLE_CLIENT_SECRET; echo
-fi
-if [ -z "${GOOGLE_SHEETS_API_KEY-}" ]; then
-  read -p "Google Sheets API Key: " GOOGLE_SHEETS_API_KEY
-fi
-if [ -z "${GOOGLE_MAPS_API_KEY-}" ]; then
-  read -p "Google Maps API Key: " GOOGLE_MAPS_API_KEY
-fi
-if [ -z "${GOOGLE_ANALYTICS_ID-}" ]; then
-  read -p "Google Analytics ID: " GOOGLE_ANALYTICS_ID
-fi
+echo "Reading required values from environment..."
+# Require environment variables to be set (non-interactive)
+: ${DB_PASSWORD:?"Error: DB_PASSWORD is not set. Export DB_PASSWORD before running the script."}
+: ${GOOGLE_CLIENT_ID:?"Error: GOOGLE_CLIENT_ID is not set. Export GOOGLE_CLIENT_ID before running the script."}
+: ${GOOGLE_CLIENT_SECRET:?"Error: GOOGLE_CLIENT_SECRET is not set. Export GOOGLE_CLIENT_SECRET before running the script."}
+: ${GOOGLE_SHEETS_API_KEY:?"Error: GOOGLE_SHEETS_API_KEY is not set. Export GOOGLE_SHEETS_API_KEY before running the script."}
+: ${GOOGLE_MAPS_API_KEY:?"Error: GOOGLE_MAPS_API_KEY is not set. Export GOOGLE_MAPS_API_KEY before running the script."}
+: ${GOOGLE_ANALYTICS_ID:?"Error: GOOGLE_ANALYTICS_ID is not set. Export GOOGLE_ANALYTICS_ID before running the script."}
 if [ -z "${REDIRECT_HOST-}" ]; then
-  read -p "OAuth Redirect host (e.g. SERVICE_NAME-xxxxx.run.app) [press enter to accept default]: " REDIRECT_HOST
-  if [ -z "${REDIRECT_HOST}" ]; then
-    REDIRECT_HOST="${SERVICE_NAME}-xxxxx.run.app"
-  fi
+  REDIRECT_HOST="${SERVICE_NAME}-xxxxx.run.app"
 fi
 
 cat > /tmp/.env.prod << EOF
