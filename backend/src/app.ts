@@ -18,11 +18,6 @@ import {
   rateLimit,
 } from './middleware/auth';
 
-// Import routes (will be created)
-// import authRoutes from './routes/auth';
-// import activityRoutes from './routes/activities';
-// import dashboardRoutes from './routes/dashboard';
-
 dotenv.config();
 
 const app: Express = express();
@@ -87,11 +82,27 @@ app.get('/api/version', (req: Request, res: Response) => {
 });
 
 /**
- * Routes
+ * Placeholder API routes
  */
-// app.use('/api/auth', authRoutes);
-// app.use('/api/activities', activityRoutes);
-// app.use('/api/dashboard', dashboardRoutes);
+app.get('/api/auth', (req: Request, res: Response) => {
+  res.json({ message: 'Auth API endpoint is available', status: 'ready' });
+});
+
+app.get('/api/activities', (req: Request, res: Response) => {
+  res.json({ message: 'Activity API endpoint is available', supportedTypes: ['transportation', 'energy', 'food', 'shopping', 'home'] });
+});
+
+app.get('/api/dashboard', (req: Request, res: Response) => {
+  res.json({ message: 'Dashboard API endpoint is available', summary: 'API stub for future dashboard integration' });
+});
+
+app.get('/api/recommendations', (req: Request, res: Response) => {
+  res.json({ message: 'Recommendations endpoint is available', notes: 'Recommendation engine integration scaffolded' });
+});
+
+app.get('/api/google', (req: Request, res: Response) => {
+  res.json({ message: 'Google integration API endpoint is available', services: ['Calendar', 'Sheets', 'Drive', 'Docs', 'Maps', 'Analytics', 'Storage', 'BigQuery'] });
+});
 
 /**
  * Welcome Route
@@ -140,7 +151,7 @@ app.use(errorHandler);
 const startServer = (): void => {
   try {
     app.listen(PORT, () => {
-      console.log(`
+      console.info(`
 ╔══════════════════════════════════════════════════════════╗
 ║  🌍 Carbon Footprint Platform API                         ║
 ║  Version: 1.0.0                                          ║
@@ -160,19 +171,19 @@ const startServer = (): void => {
  * Graceful Shutdown
  */
 process.on('SIGTERM', () => {
-  console.log('SIGTERM signal received: closing HTTP server');
+  console.info('SIGTERM signal received: closing HTTP server');
   process.exit(0);
 });
 
 process.on('SIGINT', () => {
-  console.log('SIGINT signal received: closing HTTP server');
+  console.info('SIGINT signal received: closing HTTP server');
   process.exit(0);
 });
 
 /**
  * Unhandled Promise Rejection Handler
  */
-process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
+process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
 

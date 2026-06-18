@@ -5,7 +5,9 @@
  */
 
 import { google } from 'googleapis';
-import { OAuth2Client } from 'google-auth-library';
+import { OAuth2Client, type Credentials } from 'google-auth-library';
+import { BigQuery } from '@google-cloud/bigquery';
+import { Storage } from '@google-cloud/storage';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
@@ -51,7 +53,7 @@ export class GoogleServicesFactory {
   static createCalendarClient(auth: OAuth2Client) {
     return google.calendar({
       version: 'v3',
-      auth: auth as any,
+      auth,
     });
   }
 
@@ -61,7 +63,7 @@ export class GoogleServicesFactory {
   static createSheetsClient(auth: OAuth2Client) {
     return google.sheets({
       version: 'v4',
-      auth: auth as any,
+      auth,
     });
   }
 
@@ -71,7 +73,7 @@ export class GoogleServicesFactory {
   static createDriveClient(auth: OAuth2Client) {
     return google.drive({
       version: 'v3',
-      auth: auth as any,
+      auth,
     });
   }
 
@@ -81,7 +83,7 @@ export class GoogleServicesFactory {
   static createDocsClient(auth: OAuth2Client) {
     return google.docs({
       version: 'v1',
-      auth: auth as any,
+      auth,
     });
   }
 
@@ -89,7 +91,6 @@ export class GoogleServicesFactory {
    * Create BigQuery client for analytics
    */
   static createBigQueryClient(auth?: OAuth2Client) {
-    const BigQuery = require('@google-cloud/bigquery').BigQuery;
     return new BigQuery({
       projectId: process.env.GOOGLE_BIGQUERY_PROJECT_ID,
       keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
@@ -100,7 +101,6 @@ export class GoogleServicesFactory {
    * Create Google Cloud Storage client
    */
   static createStorageClient() {
-    const Storage = require('@google-cloud/storage').Storage;
     return new Storage({
       projectId: process.env.GOOGLE_BIGQUERY_PROJECT_ID,
       keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
@@ -153,7 +153,7 @@ export const getTokensFromCode = async (code: string) => {
 /**
  * Set credentials for OAuth2 client
  */
-export const setCredentials = (credentials: any) => {
+export const setCredentials = (credentials: Credentials) => {
   oauth2Client.setCredentials(credentials);
 };
 

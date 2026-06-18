@@ -48,6 +48,8 @@ A comprehensive, AI-powered platform that:
 
 ## 🏗️ Architecture Overview
 
+This repository currently implements the backend API and Google service integration scaffolding for the Carbon Footprint platform. A frontend application is planned, but the current deliverable focuses on the backend prototype and API endpoints.
+
 ```
 carbon-footprint-platform/
 ├── backend/
@@ -66,64 +68,32 @@ carbon-footprint-platform/
 │   │   │   ├── googleSheetsService.ts
 │   │   │   ├── googleDriveService.ts
 │   │   │   ├── googleMapsService.ts
-│   │   │   ├── recommendationEngine.ts
-│   │   │   └── analyticsService.ts
-│   │   ├── models/
-│   │   │   ├── User.ts
-│   │   │   ├── Activity.ts
-│   │   │   ├── CarbonFootprint.ts
-│   │   │   └── Recommendation.ts
-│   │   ├── routes/
-│   │   │   ├── auth.ts
-│   │   │   ├── activities.ts
-│   │   │   ├── dashboard.ts
-│   │   │   ├── recommendations.ts
-│   │   │   └── google.ts
+│   │   │   ├── googleDocsService.ts
+│   │   │   ├── googleCloudStorageService.ts
+│   │   │   ├── googleAnalyticsService.ts
+│   │   │   ├── googleBigQueryService.ts
+│   │   │   └── recommendationEngine.ts
 │   │   ├── utils/
-│   │   │   ├── logger.ts
 │   │   │   ├── encryption.ts
 │   │   │   └── validators.ts
-│   │   ├── controllers/
-│   │   │   ├── authController.ts
-│   │   │   ├── activityController.ts
-│   │   │   └── dashboardController.ts
 │   │   └── app.ts
 │   ├── tests/
 │   │   ├── unit/
 │   │   ├── integration/
-│   │   └── e2e/
+│   │   ├── e2e/
+│   │   └── accessibility/
 │   ├── package.json
 │   └── tsconfig.json
 │
 ├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── Dashboard.tsx
-│   │   │   ├── ActivityTracker.tsx
-│   │   │   ├── Recommendations.tsx
-│   │   │   └── AccessibleUI/
-│   │   ├── pages/
-│   │   │   ├── Home.tsx
-│   │   │   ├── Profile.tsx
-│   │   │   └── Analytics.tsx
-│   │   ├── services/
-│   │   │   └── api.ts
-│   │   ├── hooks/
-│   │   │   └── useCarbonData.ts
-│   │   ├── utils/
-│   │   │   ├── validation.ts
-│   │   │   └── formatters.ts
-│   │   └── App.tsx
-│   ├── public/
-│   ├── tests/
-│   ├── package.json
-│   └── tsconfig.json
+│   └── tsconfig.json  # Frontend scaffold only
 │
 ├── docker-compose.yml
 ├── .env.example
 ├── .gitignore
 └── package.json (root)
 ```
+
 
 ---
 
@@ -180,29 +150,24 @@ This platform leverages **8 Google APIs** for comprehensive functionality:
 ## ✨ Features
 
 ### Core Functionality
-- ✅ User Authentication (OAuth 2.0)
-- ✅ Activity Tracking (Transportation, Energy, Food, Shopping)
-- ✅ Real-time Carbon Calculation
-- ✅ Personal Dashboard with Visualizations
-- ✅ Personalized Recommendations Engine
-- ✅ Goal Setting & Progress Tracking
-- ✅ Community Benchmarking
-- ✅ Export Reports (PDF, CSV, Google Sheets)
+- ✅ Backend API with health and metadata endpoints
+- ✅ Auth endpoint scaffolding for Google OAuth token validation
+- ✅ Activity endpoint scaffolding for future tracking
+- ✅ Dashboard endpoint scaffolding for analytics integration
+- ✅ Google service client configuration for Calendar, Sheets, Drive, Docs, Maps, Analytics, Storage, and BigQuery
+- ✅ Input validation and sanitization utilities
+- ✅ Security middleware with CSP, CORS, rate limiting, and JWT verification
+- ✅ Deployment-ready Docker and Cloud Run configuration
 
-### Intelligence Features
-- ✅ Machine Learning-based Activity Prediction
-- ✅ Trend Analysis & Insights
-- ✅ Smart Notifications for High-Impact Activities
-- ✅ Contextual Recommendations
-- ✅ Impact Gamification (Challenges, Badges, Leaderboards)
+### Intelligence & Analytics
+- ✅ Carbon calculation engine with transportation, food, electricity, and shopping models
+- ✅ Recommendation engine scaffolded for personalized guidance
+- ✅ Google Analytics and BigQuery integration architecture
 
-### Accessibility Features
-- ✅ WCAG 2.1 Level AA Compliance
-- ✅ Keyboard Navigation Support
-- ✅ Screen Reader Optimization
-- ✅ High Contrast Modes
-- ✅ Adjustable Font Sizes
-- ✅ Reduced Motion Preferences
+### Accessibility & Quality
+- ✅ Backend API response validation and structured error handling
+- ✅ API route availability tests for health, metadata, and fallback handling
+- ✅ Documentation aligned to current repository state
 
 ---
 
@@ -210,7 +175,6 @@ This platform leverages **8 Google APIs** for comprehensive functionality:
 
 ### Prerequisites
 - Node.js 18+
-- PostgreSQL 14+
 - Google Cloud Project with APIs enabled
 - Docker (optional)
 
@@ -228,16 +192,11 @@ cp .env.example .env
 
 ### 3. Install Dependencies
 ```bash
-# Install root dependencies
 npm install
-
-# Install backend
 cd backend && npm install
-
-# Install frontend
-cd ../frontend && npm install
 cd ..
 ```
+
 
 ### 4. Setup Database
 ```bash

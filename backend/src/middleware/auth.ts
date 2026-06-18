@@ -5,6 +5,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
+import { google } from 'googleapis';
 import jwt from 'jsonwebtoken';
 import { oauth2Client } from '../config/googleServices';
 
@@ -36,14 +37,21 @@ export const verifyJWT = (req: AuthRequest, res: Response, next: NextFunction): 
       return;
     }
 
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      console.error('JWT_SECRET environment variable is not configured');
+      res.status(500).json({ error: 'Server configuration error' });
+      return;
+    }
+
     const token = authHeader.slice(7);
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as any;
+    const decoded = jwt.verify(token, secret) as jwt.JwtPayload;
 
     req.user = {
-      id: decoded.id,
-      email: decoded.email,
-      googleId: decoded.googleId,
-      role: decoded.role || 'user',
+      id: decoded.id as string,
+      email: decoded.email as string,
+      googleId: decoded.googleId as string,
+      role: (decoded.role as string) || 'user',
     };
     req.token = token;
 
@@ -76,7 +84,7 @@ export const verifyGoogleToken = async (
     oauth2Client.setCredentials({ access_token: token });
 
     // Verify token by making a simple API call
-    const oauth2 = require('googleapis').google.oauth2('v2');
+    const oauth2 = google.oauth2('v2');
     const userInfo = await oauth2.userinfo.get({ auth: oauth2Client });
 
     req.user = {
@@ -132,20 +140,20 @@ export const securityHeaders = (req: Request, res: Response, next: NextFunction)
   // CSP header
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' https://apis.google.com; style-src 'self' 'unsafe-inline'"
+    "default-src 'self'; script-src 'self' https://apis.google.com; style-src 'self' 'unsafe-inline'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'"
   );
 
   // CORS
   const origin = req.headers.origin;
   const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000').split(',');
 
-  if (allowedOrigins.includes(origin || '')) {
-    res.setHeader('Access-Control-Allow-Origin', origin || '');
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
   }
 
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
 
   next();
 };
@@ -193,7 +201,7 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction): 
 
   res.on('finish', () => {
     const duration = Date.now() - startTime;
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path} - ${res.statusCode} (${duration}ms)`);
+    console.info(`[${new Date().toISOString()}] ${req.method} ${req.path} - ${res.statusCode} (${duration}ms)`);
   });
 
   next();
@@ -207,7 +215,7 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction): 
  * @param next Next middleware
  */
 export const errorHandler = (
-  error: any,
+  error: unknown,
   req: Request,
   res: Response,
   next: NextFunction
