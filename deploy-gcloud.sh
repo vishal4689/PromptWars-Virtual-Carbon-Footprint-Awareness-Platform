@@ -61,7 +61,6 @@ gcloud sql instances create ${POSTGRES_INSTANCE} \
   --tier=db-f1-micro \
   --region=${REGION} \
   --availability-type=REGIONAL \
-  --enable-bin-log \
   --backup-start-time=02:00 \
   || echo "Instance already exists"
 
@@ -75,7 +74,7 @@ gcloud sql databases create ${POSTGRES_DB} \
 echo "👤 Creating database user..."
 gcloud sql users create ${POSTGRES_USER} \
   --instance=${POSTGRES_INSTANCE} \
-  --password \
+  --password="${DB_PASSWORD}" \
   || echo "User already exists"
 
 # Step 6: Get Cloud SQL connection name

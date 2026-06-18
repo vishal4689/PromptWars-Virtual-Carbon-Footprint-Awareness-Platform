@@ -2,7 +2,7 @@
   "name": "carbon-footprint-platform",
   "version": "1.0.0",
   "description": "Virtual Carbon Footprint Awareness Platform - Track and reduce your environmental impact",
-  "main": "dist/backend/src/app.js",
+  "main": "dist/src/app.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only backend/src/app.ts",
     "build": "tsc --project backend/tsconfig.json",
