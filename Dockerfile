@@ -1,7 +1,7 @@
 FROM node:18-alpine AS dependencies
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 FROM dependencies AS build
 WORKDIR /app
@@ -12,7 +12,7 @@ FROM node:18-alpine AS production
 WORKDIR /app
 ENV NODE_ENV=production
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm install --omit=dev
 COPY --from=build /app/dist ./dist
 COPY .env.example .env
 
