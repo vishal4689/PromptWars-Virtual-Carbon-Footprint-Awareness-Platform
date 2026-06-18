@@ -112,6 +112,13 @@ app.get('/api', (req: Request, res: Response) => {
 });
 
 /**
+ * Root redirect to API
+ */
+app.get('/', (req: Request, res: Response) => {
+  res.redirect('/api');
+});
+
+/**
  * 404 Handler
  */
 app.use((req: Request, res: Response) => {
